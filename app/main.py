@@ -10,7 +10,9 @@ from app.core.errors import DomainError
 from app.database import close_connection, get_connection, init_db
 from app.network.router import router as network_router
 from app.network.operations_router import router as operations_router
+from app.network.scenario_router import router as capacity_scenario_router
 from app.network.schema import ensure_network_schema
+from app.network.scenario_schema import ensure_capacity_scenario_schema
 
 
 @asynccontextmanager
@@ -18,6 +20,7 @@ async def lifespan(app: FastAPI):
     del app
     init_db()
     ensure_network_schema(get_connection())
+    ensure_capacity_scenario_schema(get_connection())
     yield
     close_connection()
 
@@ -42,6 +45,7 @@ app.include_router(system.router)
 app.include_router(maintenance.router)
 app.include_router(network_router)
 app.include_router(operations_router)
+app.include_router(capacity_scenario_router)
 
 
 @app.get("/")

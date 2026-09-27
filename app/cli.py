@@ -8,11 +8,13 @@ from fastapi.testclient import TestClient
 from app.database import database_path, get_connection, init_db
 from app.main import app
 from app.network.schema import ensure_network_schema
+from app.network.scenario_schema import ensure_capacity_scenario_schema
 
 
 def command_init() -> int:
     init_db()
     ensure_network_schema(get_connection())
+    ensure_capacity_scenario_schema(get_connection())
     print(json.dumps({"database": str(database_path()), "status": "initialized"}, ensure_ascii=False))
     return 0
 
@@ -21,6 +23,7 @@ def command_check() -> int:
     init_db()
     connection = get_connection()
     ensure_network_schema(connection)
+    ensure_capacity_scenario_schema(connection)
     result = {
         "database": str(database_path()),
         "integrity": connection.execute("PRAGMA integrity_check").fetchone()[0],
