@@ -199,6 +199,37 @@ CREATE TABLE IF NOT EXISTS operation_events (
     created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_operation_events_resource ON operation_events(resource_type,resource_id,id);
+CREATE TABLE IF NOT EXISTS capacity_plans (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    code TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    scenario_id INTEGER NOT NULL REFERENCES network_scenarios(id),
+    description TEXT NOT NULL DEFAULT '',
+    created_by TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS capacity_plan_versions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    plan_id INTEGER NOT NULL REFERENCES capacity_plans(id) ON DELETE CASCADE,
+    version_no INTEGER NOT NULL,
+    state TEXT NOT NULL DEFAULT 'draft' CHECK(state IN ('draft','submitted','approved','rejected')),
+    assumptions_json TEXT NOT NULL,
+    assumptions_digest TEXT NOT NULL,
+    result_json TEXT NOT NULL,
+    result_digest TEXT NOT NULL,
+    based_on_version_no INTEGER,
+    submitted_by TEXT,
+    submitted_at TEXT,
+    approved_by TEXT,
+    approved_at TEXT,
+    review_note TEXT NOT NULL DEFAULT '',
+    created_by TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE(plan_id, version_no)
+);
+CREATE INDEX IF NOT EXISTS idx_capacity_versions_state ON capacity_plan_versions(plan_id,state,version_no);
 '''
 
 
